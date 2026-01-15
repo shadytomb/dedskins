@@ -1,190 +1,127 @@
-// =======================
-// SUPABASE INIT
-// =======================
-const SUPABASE_URL = "https://scbnagapudotsmlulsoj.supabase.co";
-const SUPABASE_ANON_KEY = "YOUR_ANON_KEY_HERE";
+/* =========================
+   SUPABASE SETUP
+========================= */
 
-const supabase = supabasejs.createClient(
+const SUPABASE_URL = "https://scbnagapudotsmlulsoj.supabase.co";
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjYm5hZ2FwdWRvdHNtbHVsc29qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0ODY4OTksImV4cCI6MjA4NDA2Mjg5OX0.XrQIvi4q01HwNptz6s6pGjKr_1nE-jY6vfrpelatTTg";
+
+const supabase = window.supabase.createClient(
   SUPABASE_URL,
-  SUPABASE_ANON_KEY,
-  {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-    },
-  }
+  SUPABASE_ANON_KEY
 );
 
-// =======================
-// DOM
-// =======================
-const pages = document.querySelectorAll(".page");
-const navButtons = document.querySelectorAll("[data-page]");
-const authBtn = document.getElementById("authBtn");
-const authModal = document.getElementById("authModal");
-const closeAuth = document.getElementById("closeAuth");
-const toggleAuth = document.getElementById("toggleAuth");
-const submitAuth = document.getElementById("submitAuth");
+/* =========================
+   PAGE NAVIGATION
+========================= */
 
-const emailInput = document.getElementById("email");
-const passwordInput = document.getElementById("password");
-const nicknameInput = document.getElementById("nickname");
-const inviteInput = document.getElementById("invite");
-
-const adminPanel = document.getElementById("adminPanel");
-const announcement = document.getElementById("announcement");
-
-let isSignup = false;
-let currentUser = null;
-let currentProfile = null;
-
-// =======================
-// NAVIGATION
-// =======================
-navButtons.forEach(btn => {
-  btn.addEventListener("click", () => {
-    const page = btn.dataset.page;
-    pages.forEach(p => p.classList.remove("active"));
-    document.getElementById(page).classList.add("active");
+window.showPage = function (pageId) {
+  document.querySelectorAll(".page").forEach((p) => {
+    p.classList.remove("active");
   });
-});
 
-// =======================
-// AUTH MODAL
-// =======================
-authBtn.onclick = () => authModal.classList.remove("hidden");
-closeAuth.onclick = () => authModal.classList.add("hidden");
-
-toggleAuth.onclick = () => {
-  isSignup = !isSignup;
-  nicknameInput.style.display = isSignup ? "block" : "none";
-  inviteInput.style.display = isSignup ? "block" : "none";
-  toggleAuth.textContent = isSignup
-    ? "Already have an account?"
-    : "Need an account?";
+  const page = document.getElementById(pageId);
+  if (page) page.classList.add("active");
 };
 
-// =======================
-// AUTH SUBMIT
-// =======================
-submitAuth.onclick = async () => {
-  const email = emailInput.value.trim();
-  const password = passwordInput.value.trim();
-  const nickname = nicknameInput.value.trim();
-  const invite = inviteInput.value.trim();
+/* =========================
+   AUTH HANDLING
+========================= */
 
-  if (!email || !password) {
-    alert("Email and password required. Obviously.");
-    return;
-  }
+const authForm = document.getElementById("authForm");
+const authMessage = document.getElementById("authMessage");
+const loginBtn = document.getElementById("loginBtn");
+const logoutBtn = document.getElementById("logoutBtn");
 
-  if (isSignup) {
-    const { data, error } = await supabase.auth.signUp({
+if (authForm) {
+  authForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const nickname = document.getElementById("nickname").value.trim();
+    const invite = document.getElementById("invite").value.trim();
+
+    // Try login first
+    let { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
+    // If user does not exist → sign up
     if (error) {
-      alert(error.message);
+      const signup = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            nickname: nickname || null,
+            role: invite === "YELL0W" ? "admin" : "user",
+          },
+        },
+      });
+
+      if (signup.error) {
+        authMessage.textContent = signup.error.message;
+        return;
+      }
+
+      authMessage.textContent = "Account created. Logged in.";
+      showPage("home");
       return;
     }
 
-    const role = invite === "YELL0W" ? "admin" : "user";
+    // Login success
+    authMessage.textContent = "Logged in.";
+    showPage("home");
+  });
+}
 
-    await supabase.from("profiles").insert({
-      id: data.user.id,
-      email,
-      nickname,
-      role,
-    });
+/* =========================
+   LOGOUT
+========================= */
 
-  } else {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      alert("Wrong credentials. Skill issue.");
-      return;
-    }
-  }
-
-  authModal.classList.add("hidden");
+window.logout = async function () {
+  await supabase.auth.signOut();
+  showPage("home");
 };
 
-// =======================
-// SESSION LOAD
-// =======================
-async function loadSession() {
+/* =========================
+   SESSION RESTORE
+========================= */
+
+async function checkSession() {
   const {
     data: { session },
   } = await supabase.auth.getSession();
 
-  if (!session) return;
+  if (session) {
+    loginBtn.style.display = "none";
+    logoutBtn.style.display = "inline-block";
 
-  currentUser = session.user;
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", currentUser.id)
-    .single();
-
-  currentProfile = profile;
-
-  authBtn.textContent = "Logout";
-  adminPanel.classList.toggle(
-    "hidden",
-    currentProfile.role !== "admin"
-  );
+    // Optional: role detection
+    const role = session.user.user_metadata?.role;
+    if (role === "admin") {
+      console.log("Admin logged in");
+    }
+  } else {
+    loginBtn.style.display = "inline-block";
+    logoutBtn.style.display = "none";
+  }
 }
 
-// =======================
-// LOGOUT
-// =======================
-authBtn.addEventListener("click", async () => {
-  if (!currentUser) return;
+checkSession();
 
-  await supabase.auth.signOut();
-  location.reload();
-});
+/* =========================
+   AUTH STATE LISTENER
+========================= */
 
-// =======================
-// AUTH STATE CHANGE
-// =======================
 supabase.auth.onAuthStateChange((_event, session) => {
-  currentUser = session?.user || null;
-  if (!currentUser) {
-    adminPanel.classList.add("hidden");
-    authBtn.textContent = "Login";
+  if (session) {
+    loginBtn.style.display = "none";
+    logoutBtn.style.display = "inline-block";
   } else {
-    loadSession();
+    loginBtn.style.display = "inline-block";
+    logoutBtn.style.display = "none";
   }
 });
-
-// =======================
-// REALTIME: ANNOUNCEMENT
-// =======================
-supabase
-  .channel("site_settings")
-  .on(
-    "postgres_changes",
-    { event: "*", schema: "public", table: "site_settings" },
-    payload => {
-      const text = payload.new?.announcement;
-      if (text) {
-        announcement.textContent = text;
-        announcement.classList.remove("hidden");
-      }
-    }
-  )
-  .subscribe();
-
-// =======================
-// INIT
-// =======================
-loadSession();
-
-
-
