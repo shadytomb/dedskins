@@ -2,112 +2,95 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Shady Tomb</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ShadyTomb</title>
 
-  <!-- Font Awesome -->
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-  />
-
-  <!-- Styles -->
-  <link rel="stylesheet" href="styles.css" />
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css" />
 
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
-<body class="dark">
+<body>
 
-  <!-- NAVBAR -->
-  <nav class="navbar">
-    <div class="nav-left">ShadyTomb</div>
-    <div class="nav-right">
-      <button data-page="home">Home</button>
-      <button data-page="projects">Projects</button>
-      <button data-page="about">About</button>
-      <button id="authBtn">Login</button>
+  <!-- ====================
+       NAVBAR
+  ===================== -->
+  <nav>
+    <div class="logo">ShadyTomb</div>
+
+    <div class="nav-actions">
+      <button onclick="showPage('home')">Home</button>
+      <button onclick="showPage('projects')">Projects</button>
+      <button onclick="showPage('about')">About</button>
+      <button id="loginBtn" onclick="showPage('login')">Login</button>
+      <button id="logoutBtn" class="hidden">Logout</button>
     </div>
   </nav>
 
-  <!-- ANNOUNCEMENT -->
-  <div id="announcement" class="announcement hidden"></div>
-
-  <!-- MAIN -->
-  <main>
-
-    <!-- HOME -->
-    <section id="home" class="page active">
+  <!-- ====================
+       HOME
+  ===================== -->
+  <section id="home" class="page active">
+    <div class="hero">
       <h1>Welcome</h1>
       <p>Not broken. Not chalky. Not Grok.</p>
-    </section>
+    </div>
+  </section>
 
-    <!-- PROJECTS -->
-    <section id="projects" class="page">
-      <h1>Projects</h1>
-      <div id="projectList"></div>
-    </section>
+  <!-- ====================
+       PROJECTS
+  ===================== -->
+  <section id="projects" class="page">
+    <h2>Projects</h2>
 
-    <!-- ABOUT -->
-    <section id="about" class="page">
-      <h1>About</h1>
-      <p>Built properly. Finally.</p>
-    </section>
-
-    <!-- AUTH MODAL -->
-    <div id="authModal" class="modal hidden">
-      <div class="modal-box">
-        <h2 id="authTitle">Login</h2>
-
-        <input id="email" type="email" placeholder="Email" />
-        <input id="password" type="password" placeholder="Password" />
-        <input id="nickname" type="text" placeholder="Nickname (signup only)" />
-        <input id="invite" type="text" placeholder="Invite Code (optional)" />
-
-        <button id="submitAuth">Submit</button>
-        <button id="toggleAuth" class="link">
-          Need an account?
-        </button>
-
-        <p class="admin-note">
-          Admin access only if invite code is correct.
-        </p>
-
-        <button id="closeAuth" class="close">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
+    <div class="projects-grid">
+      <div class="project-card">
+        <h3>Example Project</h3>
+        <p>This is a card. It behaves. Unlike your last layout.</p>
       </div>
     </div>
+  </section>
 
-    <!-- ADMIN PANEL -->
-    <section id="adminPanel" class="admin hidden">
-      <h2>Admin Controls</h2>
+  <!-- ====================
+       ABOUT
+  ===================== -->
+  <section id="about" class="page">
+    <h2>About</h2>
+    <p class="muted">
+      A site that exists, structurally and spiritually.
+    </p>
+  </section>
 
-      <input id="bannerInput" placeholder="Announcement text" />
-      <button id="saveBanner">Update Banner</button>
+  <!-- ====================
+       LOGIN
+  ===================== -->
+  <section id="login" class="page">
+    <div class="auth-card">
+      <h2>Login</h2>
 
-      <h3>Add Project</h3>
-      <input id="projectTitle" placeholder="Project title" />
-      <input id="projectLink" placeholder="Project link" />
-      <button id="addProject">Add</button>
-    </section>
+      <input id="email" type="email" placeholder="Email" />
+      <input id="password" type="password" placeholder="Password" />
 
-  </main>
+      <button onclick="login()">Login</button>
+    </div>
+  </section>
 
-  <!-- FOOTER -->
+  <!-- ====================
+       FOOTER
+  ===================== -->
   <footer>
-    <a href="https://youtube.com/@v1tomb" target="_blank">
-      <i class="fa-brands fa-youtube"></i>
-    </a>
-    <a href="https://x.com/shadytomb" target="_blank">
-      <i class="fa-brands fa-x-twitter"></i>
-    </a>
+    © ShadyTomb — functioning HTML edition
   </footer>
 
-  <!-- APP -->
+  <!-- ====================
+       JS
+  ===================== -->
   <script src="app.js"></script>
+
 </body>
 </html>
+
 
 
