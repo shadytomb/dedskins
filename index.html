@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>ShadyTomb</title>
 
-  <!-- CSS -->
-  <link rel="stylesheet" href="style.css" />
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css" />
 
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -14,83 +15,86 @@
 
 <body>
 
-  <!-- ====================
-       NAVBAR
-  ===================== -->
-  <nav>
+  <!-- NAVBAR -->
+  <header class="navbar">
     <div class="logo">ShadyTomb</div>
 
-    <div class="nav-actions">
+    <nav>
       <button onclick="showPage('home')">Home</button>
       <button onclick="showPage('projects')">Projects</button>
       <button onclick="showPage('about')">About</button>
-      <button id="loginBtn" onclick="showPage('login')">Login</button>
-      <button id="logoutBtn" class="hidden">Logout</button>
-    </div>
-  </nav>
+      <button onclick="showPage('login')" id="loginBtn">Login</button>
+      <button onclick="logout()" id="logoutBtn" style="display:none;">Logout</button>
+    </nav>
+  </header>
 
-  <!-- ====================
-       HOME
-  ===================== -->
-  <section id="home" class="page active">
-    <div class="hero">
+  <!-- MAIN CONTENT -->
+  <main>
+
+    <!-- HOME -->
+    <section id="home" class="page active">
       <h1>Welcome</h1>
       <p>Not broken. Not chalky. Not Grok.</p>
-    </div>
-  </section>
+    </section>
 
-  <!-- ====================
-       PROJECTS
-  ===================== -->
-  <section id="projects" class="page">
-    <h2>Projects</h2>
+    <!-- PROJECTS -->
+    <section id="projects" class="page">
+      <h1>Projects</h1>
+      <p>Things that exist. Some even work.</p>
+    </section>
 
-    <div class="projects-grid">
-      <div class="project-card">
-        <h3>Example Project</h3>
-        <p>This is a card. It behaves. Unlike your last layout.</p>
-      </div>
-    </div>
-  </section>
+    <!-- ABOUT -->
+    <section id="about" class="page">
+      <h1>About</h1>
+      <p>Built with Supabase, caffeine, and regret.</p>
+    </section>
 
-  <!-- ====================
-       ABOUT
-  ===================== -->
-  <section id="about" class="page">
-    <h2>About</h2>
-    <p class="muted">
-      A site that exists, structurally and spiritually.
-    </p>
-  </section>
+    <!-- LOGIN / SIGNUP -->
+    <section id="login" class="page">
+      <h1>Login / Signup</h1>
 
-  <!-- ====================
-       LOGIN
-  ===================== -->
-  <section id="login" class="page">
-    <div class="auth-card">
-      <h2>Login</h2>
+      <form id="authForm">
+        <input
+          type="email"
+          id="email"
+          placeholder="Email"
+          required
+        />
 
-      <input id="email" type="email" placeholder="Email" />
-      <input id="password" type="password" placeholder="Password" />
+        <input
+          type="password"
+          id="password"
+          placeholder="Password"
+          required
+        />
 
-      <button onclick="login()">Login</button>
-    </div>
-  </section>
+        <input
+          type="text"
+          id="nickname"
+          placeholder="Nickname (signup only)"
+        />
 
-  <!-- ====================
-       FOOTER
-  ===================== -->
+        <input
+          type="text"
+          id="invite"
+          placeholder="Invite code (optional)"
+        />
+
+        <button type="submit">Submit</button>
+      </form>
+
+      <p id="authMessage"></p>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
   <footer>
-    © ShadyTomb — functioning HTML edition
+    <span>© ShadyTomb</span>
   </footer>
 
-  <!-- ====================
-       JS
-  ===================== -->
+  <!-- APP LOGIC -->
   <script src="app.js"></script>
 
 </body>
 </html>
-
-
-
