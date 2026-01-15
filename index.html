@@ -2,183 +2,151 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Shady Tomb</title>
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Shady Tomb — experimental web projects, visuals, and creative work." />
-  <meta name="color-scheme" content="dark">
+  <title>Shady Tomb</title>
 
   <!-- Font Awesome -->
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-    integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4I9G1tqQ6p6Y0f4YkK7xYp4xg=="
-    crossorigin="anonymous"
-    referrerpolicy="no-referrer"
   />
 
-  <!-- Styles -->
+  <!-- Site styles -->
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body>
 
-  <!-- ========================= -->
+<body class="dark">
+
+  <!-- Custom Cursor -->
+  <div id="cursor"></div>
+
   <!-- Announcement Banner -->
-  <!-- ========================= -->
-  <div id="banner" class="banner hidden">
+  <div id="banner" class="hidden">
     <i class="fa-solid fa-bullhorn"></i>
     <span id="banner-text"></span>
   </div>
 
-  <!-- ========================= -->
-  <!-- Header -->
-  <!-- ========================= -->
-  <header class="header">
-    <div class="header-inner">
-      <div class="logo">
-        <i class="fa-solid fa-skull"></i>
-        <span>Shady Tomb</span>
-      </div>
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="nav-left">
+      <span class="logo">
+        <i class="fa-solid fa-skull"></i> Shady Tomb
+      </span>
+    </div>
 
-      <nav class="nav">
-        <a href="#home">
-          <i class="fa-solid fa-house"></i>
-          <span>Home</span>
-        </a>
-        <a href="#projects">
-          <i class="fa-solid fa-layer-group"></i>
-          <span>Projects</span>
-        </a>
-        <a href="#about">
-          <i class="fa-solid fa-circle-info"></i>
-          <span>About</span>
-        </a>
-      </nav>
+    <div class="nav-center">
+      <button class="nav-btn" data-page="home">
+        <i class="fa-solid fa-house"></i> Home
+      </button>
+      <button class="nav-btn" data-page="projects">
+        <i class="fa-solid fa-code"></i> Projects
+      </button>
+      <button class="nav-btn" data-page="about">
+        <i class="fa-solid fa-user"></i> About
+      </button>
+    </div>
+
+    <div class="nav-right">
+      <button id="login-btn" class="login-btn">
+        <i class="fa-solid fa-right-to-bracket"></i>
+        Admin Login
+      </button>
     </div>
   </header>
 
-  <!-- ========================= -->
-  <!-- Main -->
-  <!-- ========================= -->
-  <main class="container" id="home">
+  <!-- Pages -->
+  <main>
 
-    <!-- Hero -->
-    <section class="hero">
-      <div class="hero-icon">
-        <i class="fa-solid fa-moon"></i>
-      </div>
-
-      <h1>Shady Tomb</h1>
-      <p class="hero-sub">
-        Experimental web projects, dark UI, and creative code.
-      </p>
-
-      <div class="hero-actions">
-        <a href="#projects" class="btn">
-          <i class="fa-solid fa-arrow-down"></i>
-          View Projects
-        </a>
-      </div>
-    </section>
-
-    <!-- Projects -->
-    <section id="projects" class="section">
-      <h2>
-        <i class="fa-solid fa-cubes"></i>
-        Projects
-      </h2>
-
-      <div class="cards">
-        <div class="card">
-          <i class="fa-solid fa-mouse-pointer"></i>
-          <h3>UI Experiments</h3>
-          <p>
-            Custom cursors, hover physics, and interaction-heavy interfaces.
-          </p>
-        </div>
-
-        <div class="card">
-          <i class="fa-solid fa-gauge-high"></i>
-          <h3>Performance Builds</h3>
-          <p>
-            Smooth animations, zero jank, no fake 2fps effects.
-          </p>
-        </div>
-
-        <div class="card">
-          <i class="fa-solid fa-eye"></i>
-          <h3>Visual Concepts</h3>
-          <p>
-            Dark-mode-first layouts, motion design, and atmosphere.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- About -->
-    <section id="about" class="section">
-      <h2>
-        <i class="fa-solid fa-user"></i>
-        About
-      </h2>
-
+    <!-- HOME -->
+    <section id="home" class="page active">
+      <h1>Welcome</h1>
       <p>
-        Shady Tomb is a space for creative experimentation on the web — focused on
-        control, performance, and aesthetic clarity. No bloated frameworks, no
-        fake global state, no nonsense.
+        Personal site, projects, and experiments.
+        Built properly this time.
       </p>
+    </section>
+
+    <!-- PROJECTS -->
+    <section id="projects" class="page">
+      <h1>Projects</h1>
+
+      <div id="projects-container">
+        <!-- Projects injected by app.js -->
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="page">
+      <h1>About</h1>
+      <p>
+        Shady Tomb. Developer. Builder.  
+        This site uses live global state instead of vibes.
+      </p>
+    </section>
+
+    <!-- ADMIN PANEL (HIDDEN BY DEFAULT) -->
+    <section id="admin-panel" class="page hidden">
+      <h1>
+        <i class="fa-solid fa-shield-halved"></i> Admin Panel
+      </h1>
+
+      <p class="admin-warning">
+        Admin access only.<br />
+        This panel only works for <strong>karson@tuta.io</strong>.
+      </p>
+
+      <div class="admin-control">
+        <label>
+          <i class="fa-solid fa-bullhorn"></i>
+          Announcement Banner
+        </label>
+        <input
+          type="text"
+          id="admin-banner-input"
+          placeholder="Banner text"
+        />
+        <button id="save-banner">
+          <i class="fa-solid fa-floppy-disk"></i>
+          Save Banner
+        </button>
+      </div>
+
+      <div class="admin-control">
+        <button id="toggle-cursor">
+          <i class="fa-solid fa-mouse-pointer"></i>
+          Toggle Cursor
+        </button>
+      </div>
     </section>
 
   </main>
 
-  <!-- ========================= -->
   <!-- Footer -->
-  <!-- ========================= -->
-  <footer id="footer" class="footer">
-    <div class="footer-inner">
+  <footer id="footer">
+    <div class="footer-icons">
+      <a
+        href="https://youtube.com/@v1tomb"
+        target="_blank"
+        aria-label="YouTube"
+      >
+        <i class="fa-brands fa-youtube"></i>
+      </a>
 
-      <div class="footer-left">
-        <i class="fa-solid fa-skull-crossbones"></i>
-        <span>
-          © <span id="year"></span> Shady Tomb
-        </span>
-      </div>
-
-      <div class="footer-right">
-        <a
-          href="https://www.youtube.com/@v1tomb"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="YouTube"
-        >
-          <i class="fa-brands fa-youtube"></i>
-        </a>
-
-        <a
-          href="https://x.com/shadytomb"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="X"
-        >
-          <i class="fa-brands fa-x-twitter"></i>
-        </a>
-      </div>
-
+      <a
+        href="https://x.com/shadytomb"
+        target="_blank"
+        aria-label="X"
+      >
+        <i class="fa-brands fa-x-twitter"></i>
+      </a>
     </div>
+
+    <span>© Shady Tomb</span>
   </footer>
 
-  <!-- ========================= -->
-  <!-- Custom Cursor -->
-  <!-- ========================= -->
-  <div id="cursor" class="cursor hidden"></div>
-
-  <!-- ========================= -->
-  <!-- Scripts -->
-  <!-- ========================= -->
-  <script type="module" src="app.js"></script>
-  <script>
-    document.getElementById("year").textContent = new Date().getFullYear();
-  </script>
+  <!-- App logic -->
+  <script src="app.js" type="module"></script>
 
 </body>
 </html>
+
