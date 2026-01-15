@@ -1,214 +1,190 @@
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-
-/* ===============================
-   Supabase Init
-   =============================== */
-
+// =======================
+// SUPABASE INIT
+// =======================
 const SUPABASE_URL = "https://scbnagapudotsmlulsoj.supabase.co";
-const SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjYm5hZ2FwdWRvdHNtbHVsc29qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0ODY4OTksImV4cCI6MjA4NDA2Mjg5OX0.XrQIvi4q01HwNptz6s6pGjKr_1nE-jY6vfrpelatTTg";
+const SUPABASE_ANON_KEY = "YOUR_ANON_KEY_HERE";
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabase = supabasejs.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY,
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+    },
+  }
+);
 
-/* ===============================
-   DOM
-   =============================== */
-
+// =======================
+// DOM
+// =======================
 const pages = document.querySelectorAll(".page");
-const navButtons = document.querySelectorAll(".nav-btn");
-const banner = document.getElementById("banner");
-const bannerText = document.getElementById("banner-text");
-const cursor = document.getElementById("cursor");
+const navButtons = document.querySelectorAll("[data-page]");
+const authBtn = document.getElementById("authBtn");
+const authModal = document.getElementById("authModal");
+const closeAuth = document.getElementById("closeAuth");
+const toggleAuth = document.getElementById("toggleAuth");
+const submitAuth = document.getElementById("submitAuth");
 
-const loginBtn = document.getElementById("login-btn");
-const loginForm = document.getElementById("login-form");
-const confirmLogin = document.getElementById("confirm-login");
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+const nicknameInput = document.getElementById("nickname");
+const inviteInput = document.getElementById("invite");
 
-const emailInput = document.getElementById("login-email");
-const passwordInput = document.getElementById("login-password");
+const adminPanel = document.getElementById("adminPanel");
+const announcement = document.getElementById("announcement");
 
-const adminPanel = document.getElementById("admin-panel");
-const bannerInput = document.getElementById("banner-input");
-const saveBannerBtn = document.getElementById("save-banner");
+let isSignup = false;
+let currentUser = null;
+let currentProfile = null;
 
-const projectsContainer = document.getElementById("projects-container");
-const projectTitle = document.getElementById("project-title");
-const projectLink = document.getElementById("project-link");
-const addProjectBtn = document.getElementById("add-project");
-
-/* ===============================
-   Custom Cursor
-   =============================== */
-
-document.addEventListener("mousemove", (e) => {
-  cursor.style.left = `${e.clientX}px`;
-  cursor.style.top = `${e.clientY}px`;
-});
-
-/* ===============================
-   Page Navigation
-   =============================== */
-
-function showPage(id) {
-  pages.forEach((p) => p.classList.remove("active"));
-  document.getElementById(id)?.classList.add("active");
-}
-
-navButtons.forEach((btn) => {
+// =======================
+// NAVIGATION
+// =======================
+navButtons.forEach(btn => {
   btn.addEventListener("click", () => {
-    showPage(btn.dataset.page);
+    const page = btn.dataset.page;
+    pages.forEach(p => p.classList.remove("active"));
+    document.getElementById(page).classList.add("active");
   });
 });
 
-/* ===============================
-   Auth
-   =============================== */
+// =======================
+// AUTH MODAL
+// =======================
+authBtn.onclick = () => authModal.classList.remove("hidden");
+closeAuth.onclick = () => authModal.classList.add("hidden");
 
-loginBtn.addEventListener("click", () => {
-  loginForm.classList.remove("hidden");
-  showPage("login-form");
-});
+toggleAuth.onclick = () => {
+  isSignup = !isSignup;
+  nicknameInput.style.display = isSignup ? "block" : "none";
+  inviteInput.style.display = isSignup ? "block" : "none";
+  toggleAuth.textContent = isSignup
+    ? "Already have an account?"
+    : "Need an account?";
+};
 
-confirmLogin.addEventListener("click", async () => {
+// =======================
+// AUTH SUBMIT
+// =======================
+submitAuth.onclick = async () => {
   const email = emailInput.value.trim();
-  const password = passwordInput.value;
+  const password = passwordInput.value.trim();
+  const nickname = nicknameInput.value.trim();
+  const invite = inviteInput.value.trim();
 
   if (!email || !password) {
-    alert("Email and password required.");
+    alert("Email and password required. Obviously.");
     return;
   }
 
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password
-  });
+  if (isSignup) {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
 
-  if (error) {
-    alert("Invalid credentials.");
-    return;
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    const role = invite === "YELL0W" ? "admin" : "user";
+
+    await supabase.from("profiles").insert({
+      id: data.user.id,
+      email,
+      nickname,
+      role,
+    });
+
+  } else {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      alert("Wrong credentials. Skill issue.");
+      return;
+    }
   }
 
-  loginForm.classList.add("hidden");
-  checkAdmin();
-});
+  authModal.classList.add("hidden");
+};
 
-/* ===============================
-   Admin Check
-   =============================== */
-
-async function checkAdmin() {
+// =======================
+// SESSION LOAD
+// =======================
+async function loadSession() {
   const {
-    data: { user }
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (!user || user.email !== "karson@tuta.io") {
-    adminPanel.classList.add("hidden");
-    return;
-  }
+  if (!session) return;
 
-  adminPanel.classList.remove("hidden");
-  showPage("admin-panel");
-}
+  currentUser = session.user;
 
-/* ===============================
-   Banner Logic (Realtime)
-   =============================== */
-
-async function loadBanner() {
-  const { data } = await supabase
-    .from("site_settings")
-    .select("value")
-    .eq("key", "banner")
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", currentUser.id)
     .single();
 
-  if (data?.value) {
-    bannerText.textContent = data.value;
-    banner.classList.remove("hidden");
-  } else {
-    banner.classList.add("hidden");
-  }
+  currentProfile = profile;
+
+  authBtn.textContent = "Logout";
+  adminPanel.classList.toggle(
+    "hidden",
+    currentProfile.role !== "admin"
+  );
 }
 
-saveBannerBtn.addEventListener("click", async () => {
-  const value = bannerInput.value.trim();
+// =======================
+// LOGOUT
+// =======================
+authBtn.addEventListener("click", async () => {
+  if (!currentUser) return;
 
-  await supabase.from("site_settings").upsert({
-    key: "banner",
-    value
-  });
-
-  bannerInput.value = "";
+  await supabase.auth.signOut();
+  location.reload();
 });
 
-/* realtime */
+// =======================
+// AUTH STATE CHANGE
+// =======================
+supabase.auth.onAuthStateChange((_event, session) => {
+  currentUser = session?.user || null;
+  if (!currentUser) {
+    adminPanel.classList.add("hidden");
+    authBtn.textContent = "Login";
+  } else {
+    loadSession();
+  }
+});
+
+// =======================
+// REALTIME: ANNOUNCEMENT
+// =======================
 supabase
-  .channel("banner")
+  .channel("site_settings")
   .on(
     "postgres_changes",
     { event: "*", schema: "public", table: "site_settings" },
-    loadBanner
+    payload => {
+      const text = payload.new?.announcement;
+      if (text) {
+        announcement.textContent = text;
+        announcement.classList.remove("hidden");
+      }
+    }
   )
   .subscribe();
 
-/* ===============================
-   Projects (Realtime)
-   =============================== */
+// =======================
+// INIT
+// =======================
+loadSession();
 
-async function loadProjects() {
-  const { data } = await supabase
-    .from("projects")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  projectsContainer.innerHTML = "";
-
-  data?.forEach((p) => {
-    const card = document.createElement("div");
-    card.className = "project-card";
-    card.innerHTML = `
-      <h3>${p.title}</h3>
-      <p>${p.link}</p>
-    `;
-
-    card.addEventListener("click", () => {
-      window.open(p.link, "_blank");
-    });
-
-    projectsContainer.appendChild(card);
-  });
-}
-
-addProjectBtn.addEventListener("click", async () => {
-  const title = projectTitle.value.trim();
-  const link = projectLink.value.trim();
-
-  if (!title || !link) return;
-
-  await supabase.from("projects").insert({
-    title,
-    link
-  });
-
-  projectTitle.value = "";
-  projectLink.value = "";
-});
-
-/* realtime */
-supabase
-  .channel("projects")
-  .on(
-    "postgres_changes",
-    { event: "*", schema: "public", table: "projects" },
-    loadProjects
-  )
-  .subscribe();
-
-/* ===============================
-   Init
-   =============================== */
-
-loadBanner();
-loadProjects();
-checkAdmin();
 
 
