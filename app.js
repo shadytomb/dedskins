@@ -1,191 +1,214 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-/* =====================================================
-   Supabase config
-   ===================================================== */
+/* ===============================
+   Supabase Init
+   =============================== */
+
 const SUPABASE_URL = "https://scbnagapudotsmlulsoj.supabase.co";
 const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjYm5hZ2FwdWRvdHNtbHVsc29qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0ODY4OTksImV4cCI6MjA4NDA2Mjg5OX0.XrQIvi4q01HwNptz6s6pGjKr_1nE-jY6vfrpelatTTg";
 
-const ADMIN_EMAIL = "karson@tuta.io";
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-/* =====================================================
+/* ===============================
    DOM
-   ===================================================== */
-const pages = document.querySelectorAll(".page");
-const navButtons = document.querySelectorAll("[data-page]");
+   =============================== */
 
-const cursor = document.getElementById("cursor");
+const pages = document.querySelectorAll(".page");
+const navButtons = document.querySelectorAll(".nav-btn");
 const banner = document.getElementById("banner");
 const bannerText = document.getElementById("banner-text");
+const cursor = document.getElementById("cursor");
 
 const loginBtn = document.getElementById("login-btn");
+const loginForm = document.getElementById("login-form");
+const confirmLogin = document.getElementById("confirm-login");
+
+const emailInput = document.getElementById("login-email");
+const passwordInput = document.getElementById("login-password");
+
 const adminPanel = document.getElementById("admin-panel");
-
-const bannerInput = document.getElementById("admin-banner-input");
+const bannerInput = document.getElementById("banner-input");
 const saveBannerBtn = document.getElementById("save-banner");
-const toggleCursorBtn = document.getElementById("toggle-cursor");
 
-/* =====================================================
-   SPA Navigation
-   ===================================================== */
-navButtons.forEach(btn => {
+const projectsContainer = document.getElementById("projects-container");
+const projectTitle = document.getElementById("project-title");
+const projectLink = document.getElementById("project-link");
+const addProjectBtn = document.getElementById("add-project");
+
+/* ===============================
+   Custom Cursor
+   =============================== */
+
+document.addEventListener("mousemove", (e) => {
+  cursor.style.left = `${e.clientX}px`;
+  cursor.style.top = `${e.clientY}px`;
+});
+
+/* ===============================
+   Page Navigation
+   =============================== */
+
+function showPage(id) {
+  pages.forEach((p) => p.classList.remove("active"));
+  document.getElementById(id)?.classList.add("active");
+}
+
+navButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
-    const page = btn.dataset.page;
-
-    pages.forEach(p => p.classList.remove("active"));
-    document.getElementById(page).classList.add("active");
-
-    if (page !== "admin-panel") {
-      adminPanel.classList.add("hidden");
-    }
+    showPage(btn.dataset.page);
   });
 });
 
-/* =====================================================
-   Cursor (smooth, sane)
-   ===================================================== */
-let mouseX = 0, mouseY = 0, curX = 0, curY = 0;
+/* ===============================
+   Auth
+   =============================== */
 
-document.addEventListener("mousemove", e => {
-  mouseX = e.clientX;
-  mouseY = e.clientY;
+loginBtn.addEventListener("click", () => {
+  loginForm.classList.remove("hidden");
+  showPage("login-form");
 });
 
-function animateCursor() {
-  curX += (mouseX - curX) * 0.15;
-  curY += (mouseY - curY) * 0.15;
-  cursor.style.left = `${curX}px`;
-  cursor.style.top = `${curY}px`;
-  requestAnimationFrame(animateCursor);
-}
-animateCursor();
+confirmLogin.addEventListener("click", async () => {
+  const email = emailInput.value.trim();
+  const password = passwordInput.value;
 
-/* =====================================================
-   Apply settings to UI
-   ===================================================== */
-function applySettings(data) {
-  // Banner
-  if (data.banner_enabled && data.banner_text) {
-    bannerText.textContent = data.banner_text;
+  if (!email || !password) {
+    alert("Email and password required.");
+    return;
+  }
+
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) {
+    alert("Invalid credentials.");
+    return;
+  }
+
+  loginForm.classList.add("hidden");
+  checkAdmin();
+});
+
+/* ===============================
+   Admin Check
+   =============================== */
+
+async function checkAdmin() {
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
+
+  if (!user || user.email !== "karson@tuta.io") {
+    adminPanel.classList.add("hidden");
+    return;
+  }
+
+  adminPanel.classList.remove("hidden");
+  showPage("admin-panel");
+}
+
+/* ===============================
+   Banner Logic (Realtime)
+   =============================== */
+
+async function loadBanner() {
+  const { data } = await supabase
+    .from("site_settings")
+    .select("value")
+    .eq("key", "banner")
+    .single();
+
+  if (data?.value) {
+    bannerText.textContent = data.value;
     banner.classList.remove("hidden");
   } else {
     banner.classList.add("hidden");
   }
-
-  // Cursor
-  if (data.cursor_enabled) {
-    document.body.classList.add("cursor-enabled");
-    cursor.classList.remove("hidden");
-  } else {
-    document.body.classList.remove("cursor-enabled");
-    cursor.classList.add("hidden");
-  }
-
-  // Admin input sync
-  if (bannerInput) {
-    bannerInput.value = data.banner_text || "";
-  }
 }
 
-/* =====================================================
-   Initial load
-   ===================================================== */
-async function loadSettings() {
-  const { data, error } = await supabase
-    .from("site_settings")
-    .select("*")
-    .eq("id", 1)
-    .single();
+saveBannerBtn.addEventListener("click", async () => {
+  const value = bannerInput.value.trim();
 
-  if (!error && data) {
-    applySettings(data);
-  }
-}
+  await supabase.from("site_settings").upsert({
+    key: "banner",
+    value
+  });
 
-/* =====================================================
-   Realtime subscription (THE IMPORTANT PART)
-   ===================================================== */
+  bannerInput.value = "";
+});
+
+/* realtime */
 supabase
-  .channel("site-settings-realtime")
+  .channel("banner")
   .on(
     "postgres_changes",
-    {
-      event: "UPDATE",
-      schema: "public",
-      table: "site_settings",
-      filter: "id=eq.1"
-    },
-    payload => {
-      applySettings(payload.new);
-    }
+    { event: "*", schema: "public", table: "site_settings" },
+    loadBanner
   )
   .subscribe();
 
-/* =====================================================
-   Auth
-   ===================================================== */
-loginBtn.addEventListener("click", async () => {
-  const email = prompt(
-    "Admin login only.\nAccess restricted to authorized email addresses."
-  );
+/* ===============================
+   Projects (Realtime)
+   =============================== */
 
-  if (!email) return;
+async function loadProjects() {
+  const { data } = await supabase
+    .from("projects")
+    .select("*")
+    .order("created_at", { ascending: false });
 
-  await supabase.auth.signInWithOtp({ email });
-  alert("Magic link sent. Check your email.");
-});
+  projectsContainer.innerHTML = "";
 
-async function checkAdmin() {
-  const { data } = await supabase.auth.getUser();
-  const user = data.user;
+  data?.forEach((p) => {
+    const card = document.createElement("div");
+    card.className = "project-card";
+    card.innerHTML = `
+      <h3>${p.title}</h3>
+      <p>${p.link}</p>
+    `;
 
-  if (!user) return;
+    card.addEventListener("click", () => {
+      window.open(p.link, "_blank");
+    });
 
-  if (user.email === ADMIN_EMAIL) {
-    adminPanel.classList.remove("hidden");
-    pages.forEach(p => p.classList.remove("active"));
-    adminPanel.classList.add("active");
-  } else {
-    alert("Unauthorized email. Access denied.");
-    await supabase.auth.signOut();
-  }
+    projectsContainer.appendChild(card);
+  });
 }
 
-/* =====================================================
-   Admin actions
-   ===================================================== */
-saveBannerBtn.addEventListener("click", async () => {
-  await supabase
-    .from("site_settings")
-    .update({
-      banner_text: bannerInput.value,
-      banner_enabled: bannerInput.value.trim().length > 0
-    })
-    .eq("id", 1);
+addProjectBtn.addEventListener("click", async () => {
+  const title = projectTitle.value.trim();
+  const link = projectLink.value.trim();
+
+  if (!title || !link) return;
+
+  await supabase.from("projects").insert({
+    title,
+    link
+  });
+
+  projectTitle.value = "";
+  projectLink.value = "";
 });
 
-toggleCursorBtn.addEventListener("click", async () => {
-  const { data } = await supabase
-    .from("site_settings")
-    .select("cursor_enabled")
-    .eq("id", 1)
-    .single();
+/* realtime */
+supabase
+  .channel("projects")
+  .on(
+    "postgres_changes",
+    { event: "*", schema: "public", table: "projects" },
+    loadProjects
+  )
+  .subscribe();
 
-  await supabase
-    .from("site_settings")
-    .update({ cursor_enabled: !data.cursor_enabled })
-    .eq("id", 1);
-});
-
-/* =====================================================
+/* ===============================
    Init
-   ===================================================== */
-loadSettings();
+   =============================== */
+
+loadBanner();
+loadProjects();
 checkAdmin();
 
-supabase.auth.onAuthStateChange(() => {
-  checkAdmin();
-});
 
