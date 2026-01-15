@@ -11,11 +11,11 @@
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
   />
 
-  <!-- Site styles -->
+  <!-- Styles -->
   <link rel="stylesheet" href="styles.css" />
 </head>
 
-<body class="dark">
+<body class="cursor-enabled">
 
   <!-- Custom Cursor -->
   <div id="cursor"></div>
@@ -27,42 +27,48 @@
   </div>
 
   <!-- Navbar -->
-  <header class="navbar">
-    <div class="nav-left">
-      <span class="logo">
-        <i class="fa-solid fa-skull"></i> Shady Tomb
-      </span>
+  <nav class="navbar">
+    <div class="logo">
+      <i class="fa-solid fa-skull"></i>
+      Shady Tomb
     </div>
 
     <div class="nav-center">
       <button class="nav-btn" data-page="home">
-        <i class="fa-solid fa-house"></i> Home
+        <i class="fa-solid fa-house"></i>
+        Home
       </button>
+
       <button class="nav-btn" data-page="projects">
-        <i class="fa-solid fa-code"></i> Projects
+        <i class="fa-solid fa-code"></i>
+        Projects
       </button>
+
       <button class="nav-btn" data-page="about">
-        <i class="fa-solid fa-user"></i> About
+        <i class="fa-solid fa-user"></i>
+        About
+      </button>
+
+      <button class="nav-btn" data-page="contact">
+        <i class="fa-solid fa-envelope"></i>
+        Contact
       </button>
     </div>
 
-    <div class="nav-right">
-      <button id="login-btn" class="login-btn">
-        <i class="fa-solid fa-right-to-bracket"></i>
-        Admin Login
-      </button>
-    </div>
-  </header>
+    <button id="login-btn" class="login-btn">
+      <i class="fa-solid fa-lock"></i>
+      Admin Login
+    </button>
+  </nav>
 
-  <!-- Pages -->
+  <!-- Main Content -->
   <main>
 
     <!-- HOME -->
     <section id="home" class="page active">
       <h1>Welcome</h1>
       <p>
-        Personal site, projects, and experiments.
-        Built properly this time.
+        This site exists because automated AI code generation should not be trusted with UI.
       </p>
     </section>
 
@@ -71,7 +77,7 @@
       <h1>Projects</h1>
 
       <div id="projects-container">
-        <!-- Projects injected by app.js -->
+        <!-- Projects injected from Supabase -->
       </div>
     </section>
 
@@ -79,42 +85,70 @@
     <section id="about" class="page">
       <h1>About</h1>
       <p>
-        Shady Tomb. Developer. Builder.  
-        This site uses live global state instead of vibes.
+        Built clean. One page. Real auth. No gimmicks.
       </p>
     </section>
 
-    <!-- ADMIN PANEL (HIDDEN BY DEFAULT) -->
-    <section id="admin-panel" class="page hidden">
-      <h1>
-        <i class="fa-solid fa-shield-halved"></i> Admin Panel
-      </h1>
+    <!-- CONTACT -->
+    <section id="contact" class="page">
+      <h1>Contact</h1>
+      <p>
+        If you’re here, you probably already know where to find me.
+      </p>
+    </section>
+
+    <!-- ADMIN PANEL -->
+    <section id="admin-panel" class="hidden">
+      <h1>Admin Panel</h1>
 
       <p class="admin-warning">
-        Admin access only.<br />
-        This panel only works for <strong>karson@tuta.io</strong>.
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        Admin access only. Actions apply site-wide in realtime.
       </p>
 
       <div class="admin-control">
-        <label>
-          <i class="fa-solid fa-bullhorn"></i>
-          Announcement Banner
-        </label>
-        <input
-          type="text"
-          id="admin-banner-input"
-          placeholder="Banner text"
-        />
+        <label>Announcement Banner</label>
+        <input id="banner-input" placeholder="Banner message…" />
         <button id="save-banner">
           <i class="fa-solid fa-floppy-disk"></i>
-          Save Banner
+          Update Banner
         </button>
       </div>
 
       <div class="admin-control">
-        <button id="toggle-cursor">
-          <i class="fa-solid fa-mouse-pointer"></i>
-          Toggle Cursor
+        <label>New Project</label>
+        <input id="project-title" placeholder="Project title" />
+        <input id="project-link" placeholder="Project link (https://)" />
+        <button id="add-project">
+          <i class="fa-solid fa-plus"></i>
+          Add Project
+        </button>
+      </div>
+    </section>
+
+    <!-- LOGIN FORM -->
+    <section id="login-form" class="hidden">
+      <h1>Admin Login</h1>
+
+      <p class="admin-warning">
+        <i class="fa-solid fa-shield-halved"></i>
+        This login is for site administrators only.
+      </p>
+
+      <div class="admin-control">
+        <input
+          id="login-email"
+          type="email"
+          placeholder="Admin email"
+        />
+        <input
+          id="login-password"
+          type="password"
+          placeholder="Password"
+        />
+        <button id="confirm-login">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i>
+          Login
         </button>
       </div>
     </section>
@@ -122,21 +156,13 @@
   </main>
 
   <!-- Footer -->
-  <footer id="footer">
+  <footer>
     <div class="footer-icons">
-      <a
-        href="https://youtube.com/@v1tomb"
-        target="_blank"
-        aria-label="YouTube"
-      >
+      <a href="https://youtube.com/@v1tomb" target="_blank" aria-label="YouTube">
         <i class="fa-brands fa-youtube"></i>
       </a>
 
-      <a
-        href="https://x.com/shadytomb"
-        target="_blank"
-        aria-label="X"
-      >
+      <a href="https://x.com/shadytomb" target="_blank" aria-label="X">
         <i class="fa-brands fa-x-twitter"></i>
       </a>
     </div>
@@ -144,9 +170,9 @@
     <span>© Shady Tomb</span>
   </footer>
 
-  <!-- App logic -->
+  <!-- App -->
   <script src="app.js" type="module"></script>
-
 </body>
 </html>
+
 
