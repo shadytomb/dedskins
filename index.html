@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Shady Tomb</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <!-- Font Awesome -->
   <link
@@ -13,165 +13,100 @@
 
   <!-- Styles -->
   <link rel="stylesheet" href="styles.css" />
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
-<body class="cursor-enabled">
+<body class="dark">
 
-  <!-- Custom Cursor -->
-  <div id="cursor"></div>
-
-  <!-- Announcement Banner -->
-  <div id="banner" class="hidden">
-    <i class="fa-solid fa-bullhorn"></i>
-    <span id="banner-text"></span>
-  </div>
-
-  <!-- Navbar -->
+  <!-- NAVBAR -->
   <nav class="navbar">
-    <div class="logo">
-      <i class="fa-solid fa-skull"></i>
-      Shady Tomb
+    <div class="nav-left">ShadyTomb</div>
+    <div class="nav-right">
+      <button data-page="home">Home</button>
+      <button data-page="projects">Projects</button>
+      <button data-page="about">About</button>
+      <button id="authBtn">Login</button>
     </div>
-
-    <div class="nav-center">
-      <button class="nav-btn" data-page="home">
-        <i class="fa-solid fa-house"></i>
-        Home
-      </button>
-
-      <button class="nav-btn" data-page="projects">
-        <i class="fa-solid fa-code"></i>
-        Projects
-      </button>
-
-      <button class="nav-btn" data-page="about">
-        <i class="fa-solid fa-user"></i>
-        About
-      </button>
-
-      <button class="nav-btn" data-page="contact">
-        <i class="fa-solid fa-envelope"></i>
-        Contact
-      </button>
-    </div>
-
-    <button id="login-btn" class="login-btn">
-      <i class="fa-solid fa-lock"></i>
-      Admin Login
-    </button>
   </nav>
 
-  <!-- Main Content -->
+  <!-- ANNOUNCEMENT -->
+  <div id="announcement" class="announcement hidden"></div>
+
+  <!-- MAIN -->
   <main>
 
     <!-- HOME -->
     <section id="home" class="page active">
       <h1>Welcome</h1>
-      <p>
-        This site exists because automated AI code generation should not be trusted with UI.
-      </p>
+      <p>Not broken. Not chalky. Not Grok.</p>
     </section>
 
     <!-- PROJECTS -->
     <section id="projects" class="page">
       <h1>Projects</h1>
-
-      <div id="projects-container">
-        <!-- Projects injected from Supabase -->
-      </div>
+      <div id="projectList"></div>
     </section>
 
     <!-- ABOUT -->
     <section id="about" class="page">
       <h1>About</h1>
-      <p>
-        Built clean. One page. Real auth. No gimmicks.
-      </p>
+      <p>Built properly. Finally.</p>
     </section>
 
-    <!-- CONTACT -->
-    <section id="contact" class="page">
-      <h1>Contact</h1>
-      <p>
-        If you’re here, you probably already know where to find me.
-      </p>
-    </section>
+    <!-- AUTH MODAL -->
+    <div id="authModal" class="modal hidden">
+      <div class="modal-box">
+        <h2 id="authTitle">Login</h2>
+
+        <input id="email" type="email" placeholder="Email" />
+        <input id="password" type="password" placeholder="Password" />
+        <input id="nickname" type="text" placeholder="Nickname (signup only)" />
+        <input id="invite" type="text" placeholder="Invite Code (optional)" />
+
+        <button id="submitAuth">Submit</button>
+        <button id="toggleAuth" class="link">
+          Need an account?
+        </button>
+
+        <p class="admin-note">
+          Admin access only if invite code is correct.
+        </p>
+
+        <button id="closeAuth" class="close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+    </div>
 
     <!-- ADMIN PANEL -->
-    <section id="admin-panel" class="hidden">
-      <h1>Admin Panel</h1>
+    <section id="adminPanel" class="admin hidden">
+      <h2>Admin Controls</h2>
 
-      <p class="admin-warning">
-        <i class="fa-solid fa-triangle-exclamation"></i>
-        Admin access only. Actions apply site-wide in realtime.
-      </p>
+      <input id="bannerInput" placeholder="Announcement text" />
+      <button id="saveBanner">Update Banner</button>
 
-      <div class="admin-control">
-        <label>Announcement Banner</label>
-        <input id="banner-input" placeholder="Banner message…" />
-        <button id="save-banner">
-          <i class="fa-solid fa-floppy-disk"></i>
-          Update Banner
-        </button>
-      </div>
-
-      <div class="admin-control">
-        <label>New Project</label>
-        <input id="project-title" placeholder="Project title" />
-        <input id="project-link" placeholder="Project link (https://)" />
-        <button id="add-project">
-          <i class="fa-solid fa-plus"></i>
-          Add Project
-        </button>
-      </div>
-    </section>
-
-    <!-- LOGIN FORM -->
-    <section id="login-form" class="hidden">
-      <h1>Admin Login</h1>
-
-      <p class="admin-warning">
-        <i class="fa-solid fa-shield-halved"></i>
-        This login is for site administrators only.
-      </p>
-
-      <div class="admin-control">
-        <input
-          id="login-email"
-          type="email"
-          placeholder="Admin email"
-        />
-        <input
-          id="login-password"
-          type="password"
-          placeholder="Password"
-        />
-        <button id="confirm-login">
-          <i class="fa-solid fa-arrow-right-to-bracket"></i>
-          Login
-        </button>
-      </div>
+      <h3>Add Project</h3>
+      <input id="projectTitle" placeholder="Project title" />
+      <input id="projectLink" placeholder="Project link" />
+      <button id="addProject">Add</button>
     </section>
 
   </main>
 
-  <!-- Footer -->
+  <!-- FOOTER -->
   <footer>
-    <div class="footer-icons">
-      <a href="https://youtube.com/@v1tomb" target="_blank" aria-label="YouTube">
-        <i class="fa-brands fa-youtube"></i>
-      </a>
-
-      <a href="https://x.com/shadytomb" target="_blank" aria-label="X">
-        <i class="fa-brands fa-x-twitter"></i>
-      </a>
-    </div>
-
-    <span>© Shady Tomb</span>
+    <a href="https://youtube.com/@v1tomb" target="_blank">
+      <i class="fa-brands fa-youtube"></i>
+    </a>
+    <a href="https://x.com/shadytomb" target="_blank">
+      <i class="fa-brands fa-x-twitter"></i>
+    </a>
   </footer>
 
-  <!-- App -->
-  <script src="app.js" type="module"></script>
+  <!-- APP -->
+  <script src="app.js"></script>
 </body>
 </html>
 
